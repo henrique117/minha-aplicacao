@@ -6,4 +6,4 @@ app = FastAPI()
 
 @app.get("/hello", response_class=PlainTextResponse)
 def hello():
-    return "Hello World"
+    return "Hello World 2"
