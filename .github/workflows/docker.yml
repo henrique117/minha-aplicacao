@@ -1,0 +1,46 @@
+name: Docker CI
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: minha-aplicacao
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar o codigo
+        uses: actions/checkout@v4
+
+      - name: Definir tag da imagem a partir do arquivo VERSION
+        run: |
+          VERSION=$(tr -d '[:space:]' < VERSION)
+          echo "IMAGE=${{ secrets.REGISTRY_USERNAME }}/${IMAGE_NAME}:${VERSION}" >> "$GITHUB_ENV"
+          echo "Versao: ${VERSION}"
+
+      - name: Build da imagem Docker
+        run: docker build -t "$IMAGE" .
+
+      - name: Verificar se a imagem foi criada e responde
+        run: |
+          docker image inspect "$IMAGE" > /dev/null
+          docker run -d --name teste -p 8080:8080 "$IMAGE"
+          for i in $(seq 1 15); do
+            if curl -fsS http://localhost:8080/hello; then echo; break; fi
+            sleep 1
+          done
+          curl -fsS http://localhost:8080/hello
+          docker rm -f teste
+
+      - name: Login no Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_TOKEN }}
+
+      - name: Push da imagem para o registry
+        run: docker push "$IMAGE"
