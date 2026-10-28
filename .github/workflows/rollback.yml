@@ -42,6 +42,8 @@ jobs:
         run: bash scripts/deploy.sh "$ANTERIOR"
 
       - name: Confirmar que a versao anterior esta no ar
+        env:
+          VERSAO: ${{ inputs.anterior }} # o compose.yaml exige VERSAO ate para o "ps"
         run: |
           docker compose ps
           curl -fsS http://localhost:8080/health | tee /dev/stderr | grep -q "\"versao\":\"$ANTERIOR\""
