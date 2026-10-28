@@ -50,3 +50,5 @@ pytest
 
 - GHCR: `ghcr.io/henrique117/minha-aplicacao`
 - Versões anteriores (atividade de Docker): `iccy11706/minha-aplicacao:1.0` e `:2.0` no Docker Hub
+
+Linha teste para rollback.
