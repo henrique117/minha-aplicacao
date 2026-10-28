@@ -1,0 +1,17 @@
+# Ambiente de staging. A imagem e sempre a publicada no GHCR (construida uma vez);
+# o que muda entre implantacoes e so a VERSAO.
+services:
+  app:
+    image: ${IMAGEM:-ghcr.io/henrique117/minha-aplicacao}:${VERSAO:?defina VERSAO, ex. VERSAO=2.1.0}
+    container_name: minha-aplicacao-staging
+    ports:
+      - "8080:8080"
+    environment:
+      AMBIENTE: staging
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
